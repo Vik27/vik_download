@@ -1,0 +1,644 @@
+<div>
+
+    <script type = "text/ng-template" id="hardwareSetup-save.html">
+        <form name="form" role="form" novalidate
+        class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+        ng-submit="ok()">
+
+        <div class="modal-header">
+            <button type="button" class="close"
+            ng-click="cancel()">&times;</button>
+            <h4 class="modal-title" id="myHardwareSetupLabel">Create or edit a HardwareSetup</h4>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>ID</label>
+                <input type="text" class="form-control" name="id"
+                ng-model="hardwareSetup.id" readonly>
+            </div>
+
+
+            <div class="form-group">
+                <label>name:</label>
+
+                <input type="text" class="form-control" name="name"
+                ng-model="hardwareSetup.name" ng-required="true"
+                ng-minlength=1 ng-maxlength=20/>
+                <span class="error" ng-show="form.name.$error.minlength">Must be at least 1 characters.</span>
+                <span class="error" ng-show="form.name.$error.maxlength">Must be at most 20 characters.</span>
+            </div>
+
+            <div class="row">
+                <div class="form-group col-md-2 col-sm-2 col-lg-2">Select Device
+                    <select class="form-control" name="deviceSelect" ng-model="hardwareSetup.deviceId" ng-required="true" ng-change="deviceChange()" ng-disabled="devreadonly">
+                        <option ng-repeat="device in devices" ng-value="device.id" ng-selected="device.id===hardwareSetup.deviceId">{{device.firmwarename}}</option>
+                    </select>
+                </div>
+                <div class=" form-group col-lg-3 col-sm-3 col-md-3">
+                    Chassis Model Number: {{(chassises | filter: {id:((devices | filter: {id:hardwareSetup.deviceId})[0].niChassisId)})[0].modelNo}}
+                </div>
+                <div class=" form-group col-lg-2 col-sm-2 col-md-2">
+                    Number of Slots: {{(chassises | filter: {id:((devices | filter: {id:hardwareSetup.deviceId})[0].niChassisId)})[0].maxSlots}}
+                </div>
+            </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>                
+                                <th>slotnumber</th>
+
+                                <th>module</th>
+
+                                <th>Sampling Frequency</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="slotdetail in hardwareSetup.slotdetails">
+                            
+                                <td>{{slotdetail.slotnumber}}</td>
+
+                                <td>
+                                    <div class="form-group">
+                                        <select class="" name="moduleSelect" ng-model="slotdetail.moduleID" ng-change="modulechange(slotdetail)">
+                                            <option ng-repeat="module in modules" ng-value="module.id" ng-selected="module.id===slotdetail.moduleID">{{module.modelNo}}</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="form-group">
+                                        <ng-form name="slotform">
+
+                                        <input type="number" class="" name="sampling"
+                                            ng-model="slotdetail.samplingrate" ng-disabled="slotdetail.samplingchoose"
+                                            ng-min="slotdetail.minSampling" ng-max="slotdetail.maxSampling" ng-samp="slotdetail.maxSampling"/>
+                                            <span class="error" ng-show="slotform.sampling.$error.ngMin">Must be greater than or equal to {{slotdetail.minSampling}}.</span>
+                                            <span class="error" ng-show="slotform.sampling.$error.ngMax">Must be lesser than or equal to {{slotdetail.maxSampling}}.</span>
+                                            {{slotform.sampling.$error}}
+                                            {{form.slotform.sampling.$error}}
+                                    </ng-form>
+                                    </div>
+                                </td>
+                            
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+            </button>
+            <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</script>
+
+<script type = "text/ng-template" id="chanSetup-save.html">
+        <form name="form" role="form" novalidate
+        class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+        ng-submit="ok()">
+
+        <div class="modal-header">
+            <button type="button" class="close"
+            ng-click="cancel()">&times;</button>
+            <h4 class="modal-title" id="hwchaschansetup">Create or edit Channel Setup</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <h4 style="text-align:center"><b>Channel Number</b></h4>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <h4 style="text-align:center"><b>Channel Name</b></h4>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <h4 style="text-align:center"><b>Channel Template</label></b></h4>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <h4 style="text-align:center"><b>Peak Value</b></h4>
+                </div>
+            </div>
+            <hr/>
+            <div class="row" ng-repeat="chanmaprow in chanmaprows">
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <div class="form-group">
+                        <p class="form-control-static" style="text-align:center">{{chanmaprow.channelnumber}}</p>
+                    </div>
+                </div>
+                <div class="col-xs-2 col-sm-3 col-lg-3 col-md-3">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="name"
+                            ng-model="chanmaprow.name" ng-required="true"
+                            ng-minlength=3 ng-maxlength=20/>
+                        <span class="error" ng-show="form.name.$error.minlength">Must be at least 3 characters.</span>
+                        <span class="error" ng-show="form.name.$error.maxlength">Must be at most 20 characters.</span>
+                    </div>
+                </div>
+                <div class="col-xs-2 col-sm-3 col-lg-3 col-md-3">
+                    <div class="form-group">
+                        <select class="form-control" name="chantempSelect" ng-model="chanmaprow.chantempId" ng-change="chantempchange(chanmaprow)">
+                            <option ng-repeat="chantemp in chantemps" ng-value="chantemp.id" ng-selected="chantemp.id===chanmaprow.chantempId">{{chantemp.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-3 col-lg-3 col-xs-2">
+                    <div class="form-group">
+                        <ng-form name="channelform">
+                            <input type="number" class="form-control" name="peakvalue"
+                                ng-model="chanmaprow.peakvalue" ng-disabled="chanmaprow.peakvaluechoose"
+                                ng-min="chanmaprow.minPeakValue" ng-max="chanmaprow.maxPeakValue"/>
+                                    <span class="error" ng-show="channelform.peakvalue.$error.ngMin">Must be greater than or equal to {{chanmaprow.minPeakValue}}.</span>
+                                    <span class="error" ng-show="channelform.peakvalue.$error.ngMax">Must be lesser than or equal to {{chanmaprow.maxPeakValue}}.</span>
+                                    {{channelform.peakvalue.$error}}
+                                    {{form.channelform.peakvalue.$error}}
+                        </ng-form>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+            </button>
+            <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</script>
+<script type="text/ng-template" id="channelselect.html">
+    <form name="channelsel" role="form" novalidate 
+        class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+        ng-submit="ok()">
+
+    <div class="modal-header">
+        <button type="button" class="close"
+            ng-click="cancel()">&times;
+        </button>
+        <h4 class="modal-title" id="hwchaschansetup">Edit Channel Number: {{chanmaprow.channelnumber}}</h4>
+    </div>
+
+    <div class="modal-body">
+        <div class="container">
+            <div class="row" style="padding-bottom:5px">
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <h5 style="text-align:center"><b>Channel Name</b></h5>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 col-xs-2">
+                    <h5 style="text-align:center"><b>Channel Template</b></h5>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 col-xs-2">
+                    <h5 style="text-align:center"><b>Peak Value</b></h5>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2 col-sm-3 col-lg-3 col-md-3">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="name"
+                            ng-model="chanmaprow.name" ng-required="true"
+                            ng-minlength=3 ng-maxlength=20/>
+                        <span class="error" ng-show="form.name.$error.minlength">Must be at least 3 characters.</span>
+                        <span class="error" ng-show="form.name.$error.maxlength">Must be at most 20 characters.</span>
+                    </div>
+                </div>
+                <div class="col-xs-2 col-sm-3 col-lg-3 col-md-3">
+                    <div class="form-group">
+                        <select class="form-control" name="chantempSelect" ng-model="chanmaprow.chantempId" ng-change="chantempchange()">
+                            <option ng-repeat="chantemp in chantemps" ng-value="chantemp.id" ng-selected="chantemp.id===chanmaprow.chantempId">{{chantemp.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-2 col-lg-2 col-xs-2">
+                    <div class="form-group">
+                        <ng-form name="channelSelform">
+                            <input type="number" class="form-control" name="peakvalue"
+                                ng-model="chanmaprow.peakvalue" ng-disabled="chanmaprow.peakvaluechoose"
+                                ng-min="chanmaprow.minPeakValue" ng-max="chanmaprow.maxPeakValue"/>
+                                    <span class="error" ng-show="channelSelform.peakvalue.$error.ngMin">Must be greater than or equal to {{chanmaprow.minPeakValue}}.</span>
+                                    <span class="error" ng-show="channelSelform.peakvalue.$error.ngMax">Must be lesser than or equal to {{chanmaprow.maxPeakValue}}.</span>
+                                    {{channelSelform.peakvalue.$error}}
+                                    {{form.channelSelform.peakvalue.$error}}
+                        </ng-form>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+            <div class="row" ng-show="chanmaprow.chantempId!=='Empty' && chanmaprow.chantempId!==null">
+                <table class="table">
+                     <tbody>
+                        <tr>
+                            <td style="border:none; font-size:1.3em">Engineering Units: <span style="color:green">{{(units | filter:{id:(chantemps | filter:{id:chanmaprow.chantempId})[0].unitId})[0].name}} </span></td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; font-size:1.3em">Sensitivity: <span style="color:green">{{(chantemps | filter:{id:chanmaprow.chantempId})[0].sensitivity}} mV/EU </span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>           
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+        </button>
+        <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+    </div>
+
+    </form>
+</script>
+<script type="text/ng-template" id="acqSetting-save.html">
+    <form name="acqsetting" role="form" novalidate 
+        class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+        ng-submit="ok()">
+
+    <div class="modal-header">
+        <button type="button" class="close"
+            ng-click="cancel()">&times;
+        </button>
+        <h4 class="modal-title" id="acqSetup">Edit Data Acquisition Settings for <b>{{hardwareSetup.name}}</b></h4>
+    </div>
+
+    <div class="modal-body">
+        <div class="container">
+            <div class="row" ng-show="error">
+                <div class="col-sm-8 col-md-8 col-lg-8 alert alert-danger">{{errorMessage}}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-5 col-md-5 col-lg-5" style="margin-right:30px">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event name:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static"><b>{{acqsttings.acqstart.name}} Data Acquisition</b></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event type:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="acqsttings.acqstart.event" ng-options="acqoption.name as acqoption.description for acqoption in acqoptions" ng-change="startEventChange()">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Time-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Wait time before start:</label>
+                                <div class="col-sm-7">
+                                    <input type="number" class="form-control" ng-model="acqsttings.acqstart.eventValue.time" placeholder="Time in seconds">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Digital'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Digital input channel:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="acqsttings.acqstart.eventValue.digchanmaprowId" ng-options="x.id as x.name group by x.slotId for x in digacqoptions">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Digital'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event detection slope:</label>
+                                <div class="col-sm-7">
+                                    <label class="radio">
+                                    <input type="radio" name="digstartslope" value="1"
+                                        ng-model="acqsttings.acqstart.eventValue.digslope" ng-required="true"/>Falling Edge</label>
+                                    <label class="radio">
+                                    <input type="radio" name="digstartslope" value="2"
+                                        ng-model="acqsttings.acqstart.eventValue.digslope" ng-required="true"/>Rising Edge</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Level-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Analog input channel:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="acqsttings.acqstart.eventValue.levchanmaprowId" ng-options="x.id as x.name group by x.slotId for x in levacqoptions">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Level-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event detection slope:</label>
+                                <div class="col-sm-7">
+                                    <label class="radio">
+                                    <input type="radio" name="levstartslope" value="1"
+                                        ng-model="acqsttings.acqstart.eventValue.levslope" ng-required="true"/>Falling Edge</label>
+                                    <label class="radio">
+                                    <input type="radio" name="levstartslope" value="2"
+                                        ng-model="acqsttings.acqstart.eventValue.levslope" ng-required="true"/>Rising Edge</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Level-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Threshold:</label>
+                                <div class="col-sm-7">
+                                    <input type="number" min=0.01 ng-max="(levacqoptions | filter:{id: acqsttings.acqstart.eventValue.levchanmaprowId})[0].peakvalue" step=0.01 class="form-control" ng-model="acqsttings.acqstart.eventValue.threshold" placeholder="Value in EU">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Level-based' && !!(acqsttings.acqstart.eventValue.levchanmaprowId)">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Peak Value:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">{{(levacqoptions | filter:{id: acqsttings.acqstart.eventValue.levchanmaprowId})[0].peakvalue}} EU</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstart.event === 'Free'">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">No values to select for Free trigger</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-5 col-md-5 col-lg-5" style="margin-left:30px">
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event name:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static"><b>{{acqsttings.acqstop.name}} Data Acquisition</b></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event type:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="acqsttings.acqstop.event" ng-options="acqoption.name as acqoption.description for acqoption in acqoptions" ng-change="stopEventChange()">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Time-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Wait time before start:</label>
+                                <div class="col-sm-7">
+                                    <input type="number" class="form-control" ng-model="acqsttings.acqstop.eventValue.time" placeholder="Time in seconds">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Digital'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Digital input channel:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="acqsttings.acqstop.eventValue.digchanmaprowId" ng-options="x.id as x.name group by x.slotId for x in digacqoptions">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Digital'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event detection slope:</label>
+                                <div class="col-sm-7">
+                                    <label class="radio">
+                                    <input type="radio" name="digstopslope" value="1"
+                                        ng-model="acqsttings.acqstop.eventValue.digslope" ng-required="true"/>Falling Edge</label>
+                                    <label class="radio">
+                                    <input type="radio" name="digstopslope" value="2"
+                                        ng-model="acqsttings.acqstop.eventValue.digslope" ng-required="true"/>Rising Edge</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Level-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Analog input channel:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="acqsttings.acqstop.eventValue.levchanmaprowId" ng-options="x.id as x.name group by x.slotId for x in levacqoptions">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Level-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Event detection slope:</label>
+                                <div class="col-sm-7">
+                                    <label class="radio">
+                                    <input type="radio" name="levstopslope" value="1"
+                                        ng-model="acqsttings.acqstop.eventValue.levslope" ng-required="true"/>Falling Edge</label>
+                                    <label class="radio">
+                                    <input type="radio" name="levstopslope" value="2"
+                                        ng-model="acqsttings.acqstop.eventValue.levslope" ng-required="true"/>Rising Edge</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Level-based'">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Threshold:</label>
+                                <div class="col-sm-7">
+                                    <input type="number" min=0.01 ng-max="(levacqoptions | filter:{id: acqsttings.acqstop.eventValue.levchanmaprowId})[0].peakvalue" step=0.01 class="form-control" ng-model="acqsttings.acqstop.eventValue.threshold" placeholder="Value in EU">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Level-based' && !!(acqsttings.acqstop.eventValue.levchanmaprowId)">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Peak Value:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">{{(levacqoptions | filter:{id: acqsttings.acqstop.eventValue.levchanmaprowId})[0].peakvalue}} EU</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-if="acqsttings.acqstop.event === 'Free'">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-static">No values to select for Free trigger</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+        </button>
+        <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+    </div>
+
+    </form>
+</script>
+    
+<div class="row" style="padding-bottom:10px">
+    <div class="col-md-3 col-lg-3 col-sm-3" ng-show="binessSelect">
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{activebusiness.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="business in businesses">
+                    <a href="" ng-click="changeothersetups(business)">{{business.name}}</a>
+                </li>
+                <li><a href="" ng-click="changeothersetups('all')">All</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 col-sm-3">
+        <button class="btn btn-primary btn-info" ng-click="create()" ng-disabled="createButton">
+            <span class="glyphicon glyphicon-flash"></span> Create a new Hardware Setup
+        </button>
+    </div>
+</div>
+<hr/>
+
+<div class="panel panel-default" ng-repeat="hardwareSetup in hardwareSetups">
+    <div class="panel-heading">
+        <div style="height:30px" class="row">
+            <div class="col-xs-4 col-md-4 col-lg-4 col-sm-4">
+                <h3 style="margin:auto">
+                    {{hardwareSetup.name}}
+                </h3>
+            </div>
+            <div class="col-xs-2 col-md-3 col-lg-4 col-sm-2">
+                <button type="submit"
+                    ng-click="verify(hardwareSetup.id)"
+                    class="btn btn-success"
+                    ng-disabled="allowVerify(hardwareSetup)">
+                    <span class="glyphicon glyphicon-ok"></span> Verify H/W setup
+                </button>
+            </div>
+            <div class="col-xs-2 col-md-3 col-lg-4 col-sm-2">
+                <button type="submit"
+                    ng-click="delete(hardwareSetup.id)"
+                    class="btn btn-danger">
+                    <span class="glyphicon glyphicon-remove-circle"></span> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+            <div class="row" style="padding-left: 15px">
+                <div class="col-md-4 col-lg-4 col-sm-4">
+                    <div class="row">
+                        Firmware Name: {{(devices | filter: {id:hardwareSetup.deviceId})[0].firmwarename}}
+                    </div>
+                    <div class="row">
+                        Chassis Model No: {{(chassises | filter: {id:(devices | filter:{id:hardwareSetup.deviceId})[0].niChassisId})[0].modelNo}}
+                    </div>
+                    <div class="row">
+                        No. of Slots: {{(chassises | filter: {id:(devices | filter:{id:hardwareSetup.deviceId})[0].niChassisId})[0].maxSlots}}
+                    </div>
+                    <div class="row" style="padding-top:15px">
+                        <button type="submit"
+                            ng-click="update(hardwareSetup.id)"
+                            class="btn">
+                            <span class="glyphicon glyphicon-pencil"></span> Edit Slot Arrangement
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-4 col-sm-4">
+                    <div class="row">
+                        Acquisition Start: {{hardwareSetup.acqstart.event}}
+                    </div>
+                    <div class="row">
+                        Acquisition Stop: {{hardwareSetup.acqstop.event}}
+                    </div>
+                    <div class="row" style="padding-top:15px">
+                        <button type="submit"
+                            ng-click="editacqsettings(hardwareSetup.id)"
+                            class="btn">
+                            <span class="glyphicon glyphicon-pencil"></span> Edit Acquisition Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+    </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <tr ng-repeat="slotdetail in hardwareSetup.slotdetails">
+                            <td colspan="1">
+                                <table>
+                                <thead></thead>
+                                    <tbody>
+                                        <tr>
+                                            <th style="border:none">Slot Number:</th>
+                                            <td style="border:none">{{slotdetail.slotnumber}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th style="border:none">Module currently in use:</th>
+                                            <td style="border:none">{{((modules | filter: {id:slotdetail.moduleID})[0].modelNo)}}</td>
+                                        </tr>
+                                        <tr ng-if="!!(slotdetail.samplingrate)">
+                                            <th style="border:none">Sampling Frequency:</th>
+                                            <td style="border:none">{{slotdetail.samplingrate}} Hz</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                            <div style="max-height:300px; overflow-y:scroll">
+                                <table class="table" ng-show="slotdetail.chansetupshow===true">
+                                    <thead>
+                                        <tr>
+                                            <th>Ch. No.</th>
+                                            <th>Ch. Name</th>
+                                            <th>Template</th>
+                                            <th>Sensitivity (mV/EU)</th>
+                                            <th>Peak Value (EU)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="chansetup in slotdetail.channelsetup">
+                                            <td style="text-align:center">{{chansetup.channelnumber}}</td>
+                                            
+                                            <td>{{chansetup.name}}</td>
+                                            
+                                            <td>{{(allchantemps | filter:{id:chansetup.channelTemplateId})[0].name}}</td>
+                                            
+                                            <td style="text-align:center">{{(allchantemps | filter:{id:chansetup.channelTemplateId})[0].sensitivity}}</td>
+                                            
+                                            <td style="text-align:center">{{chansetup.peakvalue}}</td>
+                                            
+                                            <td style="text-align:center">
+                                                <button type="submit"
+                                                    ng-click="updatesinglechan(slotdetail,chansetup)"
+                                                    class="btn">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                                <table class="table" ng-show="slotdetail.chansetupshow===false && slotdetail.moduleID!==null">
+                                    <tbody>
+                                        <tr></tr>
+                                        <tr>
+                                            <td style="border:none">
+                                                <div class="alert alert-info">None found! <a href="" ng-click="createchan(slotdetail)">Create</a> a channel-setup.</div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table" ng-show="slotdetail.moduleID===null">
+                                    <tbody>
+                                        <tr></tr>
+                                        <tr>
+                                            <td style="border:none">
+                                                <div class="alert alert-danger"> No module currently in use! Cannot create a channel map. </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        
+</div>

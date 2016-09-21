@@ -1,0 +1,168 @@
+<div>
+
+    <script type = "text/ng-template" id="channelsetup-save.html">
+        <form name="form" role="form" novalidate
+              class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+              ng-submit="ok()">
+
+            <div class="modal-header">
+                <button type="button" class="close"
+                        ng-click="cancel()">&times;</button>
+                <h4 class="modal-title" id="myChannelsetupLabel">Create or edit a Channelsetup</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" name="id"
+                           ng-model="channelsetup.id" readonly>
+                </div>
+
+                
+                <div class="form-group">
+                    <label>name:</label>
+                    
+                    <input type="text" class="form-control" name="name"
+                           ng-model="channelsetup.name" ng-required="true"
+                           ng-minlength=1 ng-maxlength=20/>
+                    <span class="error" ng-show="form.name.$error.minlength">Must be at least 1 characters.</span>
+                    <span class="error" ng-show="form.name.$error.maxlength">Must be at most 20 characters.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantitySelect"> Select Quantity: </label>
+                        <select class="form-control" name="quantitySelect" ng-model="channelsetup.quantityId" ng-change="quantchange()">
+                            <option ng-repeat="quantity in quantities" ng-value="quantity.id" ng-selected="quantity.id === channelsetup.quantityId">{{quantity.name}}
+                            </option>
+                        </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="unitSelect"> Select Measurement Unit: </label>
+                        <select class="form-control" name="unitSelect" ng-model="channelsetup.unitId">
+                            <option ng-repeat="unit in quantity.units" ng-value="unit.id" ng-selected="unit.id === channelsetup.unitId">{{unit.name}}
+                            </option>
+                        </select>
+                </div>
+                
+                <!--<div class="form-group">
+                    <label>samplingrate:</label>
+                    
+                    <input type="number" class="form-control" name="samplingrate"
+                           ng-model="channelsetup.samplingrate" ng-required="true"
+                           min=800 max=4096000/>
+                    <span class="error" ng-show="form.samplingrate.$error.min">Must be greater than or equal to 800.</span>
+                    <span class="error" ng-show="form.samplingrate.$error.max">Must be less than or equal to 4096000.</span>
+                </div>-->
+                
+                <div class="form-group">
+                    <label>sensitivity:</label>
+                    
+                    <input type="number" step="any" class="form-control" name="sensitivity"
+                           ng-model="channelsetup.sensitivity" ng-required="true"
+                           min=0.001 max=1000.0/>
+                    <span class="error" ng-show="form.sensitivity.$error.min">Must be greater than or equal to 0.001.</span>
+                    <span class="error" ng-show="form.sensitivity.$error.max">Must be less than or equal to 1000.0.</span>
+                </div>
+                
+                <!--<div class="form-group">
+                    <label>autorangetime:</label>
+                    
+                    <input type="number" class="form-control" name="autorangetime"
+                           ng-model="channelsetup.autorangetime" ng-required="true"
+                           min=1 max=25/>
+                    <span class="error" ng-show="form.autorangetime.$error.min">Must be greater than or equal to 1.</span>
+                    <span class="error" ng-show="form.autorangetime.$error.max">Must be less than or equal to 25.</span>
+                </div>-->
+                
+                <!--<div class="form-group">
+                    <label>peakvalue:</label>
+                    
+                    <input type="number" step="any" class="form-control" name="peakvalue"
+                           ng-model="channelsetup.peakvalue" ng-required="true"
+                           min=0.001 max=1000.0/>
+                    <span class="error" ng-show="form.peakvalue.$error.min">Must be greater than or equal to 0.001.</span>
+                    <span class="error" ng-show="form.peakvalue.$error.max">Must be less than or equal to 1000.0.</span>
+                </div>-->
+                
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+                </button>
+                <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </script>
+
+    <div class="row" style="padding-bottom:10px">
+        <div class="col-md-3 col-lg-3 col-sm-3" ng-show="binessSelect">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{activebusiness.name}}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="business in businesses">
+                        <a href="" ng-click="changeothersetups(business)">{{business.name}}</a>
+                    </li>
+                    <li><a href="" ng-click="changeothersetups('all')">All</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3 col-sm-3">
+            <button class="btn btn-primary btn-success" ng-click="create()" ng-disabled="createButton">
+                <span class="glyphicon glyphicon-flash"></span> Create a new Channel Template
+            </button>
+        </div>
+    </div>
+    <hr/>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                
+                <th>name</th>
+
+                <th>Quantity</th>
+
+                <th>Unit</th>
+                
+                <th>sensitivity</th>
+
+                <th></th>
+
+                <th></th>
+                
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="channelsetup in channelsetups">
+                <td>{{channelsetup.id}}</td>
+                
+                <td>{{channelsetup.name }}</td>
+
+                <td>{{(quantities | filter:{id:channelsetup.quantityId})[0].name}}</td>
+
+                <td>{{(((quantities | filter:{id:channelsetup.quantityId})[0].units) | filter:{id:channelsetup.unitId})[0].name}}</td>
+                
+                <td>{{channelsetup.sensitivity }}</td>
+                
+                <td>
+                    <button type="submit"
+                            ng-click="update(channelsetup.id)"
+                            class="btn"
+                            ng-disabled="editDeleteButton">
+                        <span class="glyphicon glyphicon-pencil"></span> Edit
+                    </button>
+                    <button type="submit"
+                            ng-click="delete(channelsetup.id)"
+                            class="btn btn-danger"
+                            ng-disabled="editDeleteButton">
+                        <span class="glyphicon glyphicon-remove-circle"></span> Delete
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

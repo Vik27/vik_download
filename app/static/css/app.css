@@ -1,0 +1,27 @@
+body {
+  margin-top: 60px;
+  padding: 10px;
+  background-color: #ECF0F1;
+}
+.my-modal-popup .modal-dialog{
+	position: absolute;
+    top: 10%;
+    left: 18.5%;
+    z-index: 1050;
+    width: 80%;
+    height: 80%;
+    margin-left: -10%;
+}
+.cliente {
+  margin:20px;
+  border: #cdcdcd medium solid;
+  border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+}
+.psswrd{
+  max-width: 100px;
+  white-space: normal;
+  /*word-wrap: normal;*/
+  overflow-x:hidden;
+}

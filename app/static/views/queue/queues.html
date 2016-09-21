@@ -1,0 +1,124 @@
+<div>
+
+    <script type = "text/ng-template" id="queue-save.html">
+        <form name="form" role="form" novalidate
+              class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+              ng-submit="ok()">
+
+            <div class="modal-header">
+                <button type="button" class="close"
+                        ng-click="cancel()">&times;</button>
+                <h4 class="modal-title" id="myUserLabel">Create or edit a Queue</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" name="id"
+                           ng-model="queue.id" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessSelect"> Business: </label>
+                        <select class="form-control" name="businessSelect" ng-model="queue.businessId" ng-required="true">
+                            <option ng-repeat="business in businesses" ng-value="business.id" ng-selected="business.id === queue.businessId">{{business.name}}
+                            </option>
+                        </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Queuename:</label>
+                    
+                    <input type="text" class="form-control" name="queuename"
+                           ng-model="queue.queuename" ng-required="true"
+                           ng-minlength=3 ng-maxlength=128/>
+                    <span class="error" ng-show="form.firmwarename.$error.minlength">Must be at least 3 characters.</span>
+                    <span class="error" ng-show="form.firmwarename.$error.maxlength">Must be at most 128 characters.</span>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+                </button>
+                <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </script>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title" >
+                <div class="row">
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{activebinessname}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="business in businesses">
+                                    <a href="" ng-click="setActiveBiness(business)">{{business.name}}</a>
+                                </li>
+                                <li><a href="" ng-click="setActiveBiness('all')">All</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class = "col sm-4 col-md-4 col-lg-3">
+                    <button class="btn btn-primary btn-default" ng-click="create()">
+                        <span class="glyphicon glyphicon-flash"></span> Create a new Queue
+                    </button>
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+
+                                <th>Business</th>
+
+                                <th>Queue Name/Id</th>
+                
+                                <th></th>
+
+                                <th></th>
+                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="queue in queues">
+                                <td>{{queue.id}}</td>
+
+                                <td>{{(businesses | filter:{id:queue.businessId})[0].name}}</td>
+                
+                                <td>{{queue.queuename }}</td>
+                
+                                <td>
+                                    <button type="submit"
+                                        ng-click="update(queue.id)"
+                                        class="btn">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                            Edit
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="submit"
+                                        ng-click="delete(queue.id)"
+                                        class="btn btn-danger">
+                                        <span class="glyphicon glyphicon-remove-circle"></span>     Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

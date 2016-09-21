@@ -1,0 +1,163 @@
+<div>
+
+    <script type = "text/ng-template" id="Module-save.html">
+        <form name="form" role="form" novalidate
+              class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+              ng-submit="ok()">
+
+            <div class="modal-header">
+                <button type="button" class="close"
+                        ng-click="cancel()">&times;</button>
+                <h4 class="modal-title" id="myModuleLabel">Create or edit a Module</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" name="id"
+                           ng-model="module.id" readonly>
+                </div>
+
+                
+                <div class="form-group">
+                    <label>modelNo:</label>
+                    
+                    <input type="text" class="form-control" name="modelNo"
+                           ng-model="module.modelNo" ng-required="true"
+                           ng-minlength=1 ng-maxlength=20/>
+                    <span class="error" ng-show="form.modelNo.$error.minlength">Must be at least 1 characters.</span>
+                    <span class="error" ng-show="form.modelNo.$error.maxlength">Must be at most 20 characters.</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Device Hex Id:</label>
+                    
+                    <input type="text" class="form-control" name="daqmxDevice"
+                           ng-model="module.daqmxDeviceId" ng-required="true"
+                           ng-minlength=1 ng-maxlength=128/>
+                    <span class="error" ng-show="form.modelNo.$error.minlength">Must be at least 1 characters.</span>
+                    <span class="error" ng-show="form.modelNo.$error.maxlength">Must be at most 128 characters.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>maxChannels:</label>
+                    
+                    <input type="number" class="form-control" name="maxChannels"
+                           ng-model="module.maxChannels" ng-required="true"
+                           min=1 max=256/>
+                    <span class="error" ng-show="form.maxChannels.$error.min">Must be greater than or equal to 1.</span>
+                    <span class="error" ng-show="form.maxChannels.$error.max">Must be less than or equal to 256.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>maxSamplingRate:</label>
+                    
+                    <input type="number" class="form-control" name="maxSamplingRate"
+                           ng-model="module.maxSamplingRate" ng-required="true"
+                           min=800 max=4096000/>
+                    <span class="error" ng-show="form.maxSamplingRate.$error.min">Must be greater than or equal to 800.</span>
+                    <span class="error" ng-show="form.maxSamplingRate.$error.max">Must be less than or equal to 4096000.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>peakVoltRange:</label>
+                    
+                    <input type="number" class="form-control" name="peakVoltRange"
+                           ng-model="module.peakVoltRange" ng-required="true"
+                           min=0 max=100/>
+                    <span class="error" ng-show="form.peakVoltRange.$error.min">Must be greater than or equal to 0.</span>
+                    <span class="error" ng-show="form.peakVoltRange.$error.max">Must be less than or equal to 100.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>type:</label>
+                    
+                    <label class="radio"><input type="radio" name="type" value="Analog_Input"
+                           ng-model="module.type" ng-required="true"/> Analog_Input </label>
+                    <label class="radio"><input type="radio" name="type" value=" Digital_Input"
+                           ng-model="module.type" ng-required="true"/>  Digital_Input </label>
+                    <label class="radio"><input type="radio" name="type" value=" Digital_Output"
+                           ng-model="module.type" ng-required="true"/>  Digital_Output </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantitiesSelect"> Quantities: </label>
+                        <select class="form-control" name="quantitiesSelect" ng-model="module.quantities" multiple>
+                            <option ng-repeat="quantity in quantities" ng-value="quantity.id" ng-selected="mapps(quantity.id)">{{quantity.name}}
+                            </option>
+                        </select>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+                </button>
+                <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </script>
+
+    <button class="btn btn-primary btn-default" ng-click="create()">
+        <span class="glyphicon glyphicon-flash"></span> Create a new Module
+    </button>
+    <hr/>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                
+                    <th>modelNo</th>
+
+                    <th>Device Hex Id</th>
+                
+                    <th>maxChannels</th>
+                
+                    <th>maxSamplingRate</th>
+                
+                    <th>peakVoltRange</th>
+                
+                    <th>type</th>
+
+                    <th>Associated Quantities</th>
+                
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="module in modules">
+                    <td>{{module.id}}</td>
+                
+                    <td>{{module.modelNo }}</td>
+
+                    <td>{{module.daqmxDeviceId }}</td>
+                
+                    <td>{{module.maxChannels }}</td>
+                
+                    <td>{{module.maxSamplingRate }}</td>
+                
+                    <td>{{module.peakVoltRange }}</td>
+                
+                    <td>{{module.type }}</td>
+
+                    <td><ul><li ng-repeat="quantity in module.quantities">{{quantity.name}}</li></ul></td>
+                
+                    <td>
+                        <button type="submit"
+                            ng-click="update(module.id)"
+                            class="btn">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                                Edit
+                        </button>
+                    </td>
+                    <td>
+                        <button type="submit"
+                            ng-click="delete(module.id)"
+                            class="btn btn-danger">
+                            <span class="glyphicon glyphicon-remove-circle"></span>
+                                Delete
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

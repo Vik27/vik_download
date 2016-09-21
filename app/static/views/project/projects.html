@@ -1,0 +1,112 @@
+<div>
+
+    <h2>Projects</h2>
+
+    <script type = "text/ng-template" id="project-save.html">
+        <form name="form" role="form" novalidate
+        class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+        ng-submit="ok()">
+
+        <div class="modal-header">
+            <button type="button" class="close"
+            ng-click="cancel()">&times;</button>
+            <h4 class="modal-title" id="myProjectLabel">Create or edit a Project</h4>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>ID</label>
+                <input type="text" class="form-control" name="id"
+                ng-model="project.id" readonly>
+            </div>
+
+
+            <div class="form-group">
+                <label>name:</label>
+
+                <input type="text" class="form-control" name="name"
+                ng-model="project.name" ng-required="true"
+                ng-minlength=3 ng-maxlength=20/>
+                <span class="error" ng-show="form.name.$error.minlength">Must be at least 3 characters.</span>
+                <span class="error" ng-show="form.name.$error.maxlength">Must be at most 20 characters.</span>
+            </div>
+
+
+            <div class="form-group">
+                <label>Select Hardware Setup:</label>
+                    <select class="form-control" name="hwsetupSelect" ng-model="project.hwsetupId" ng-required="true">
+                        <option ng-repeat="hwsetup in hwsetups" ng-value="hwsetup.id" ng-selected="hwsetup.id===project.hwsetupId">{{hwsetup.name}}</option>
+                    </select>
+            </div>
+
+
+            <div class="form-group">
+                <label>description:</label>
+
+                <input type="text" class="form-control" name="description"
+                ng-model="project.description" ng-required="true"
+                ng-minlength=10 ng-maxlength=1000/>
+                <span class="error" ng-show="form.description.$error.minlength">Must be at least 10 characters.</span>
+                <span class="error" ng-show="form.description.$error.maxlength">Must be at most 1000 characters.</span>
+            </div>
+
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+            </button>
+            <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</script>
+
+<div class="row">
+    <div class="col-md-3 col-lg-3 col-sm-3" ng-show="binessSelect">
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{activebusiness.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="business in businesses">
+                    <a href="" ng-click="changeothersetups(business)">{{business.name}}</a>
+                </li>
+                <li><a href="" ng-click="changeothersetups('all')">All</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 col-sm-3">
+        <button class="btn btn-primary btn-lg" ng-click="create()" ng-disabled="createButton">
+            <span class="glyphicon glyphicon-flash"></span> Create a new Project
+        </button>
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-sm-4 col-md-4" ng-repeat = "project in projects">
+        <div class="cliente"> hello
+            <li>ID: {{ project.id }}</li>
+            <li>name: {{ project.name }}</li>
+            <li>created_on: {{ project.created_on }}</li>
+            <li>description: {{ project.description }}</li>
+            <button ng-show="editDeleteButton" type="submit"
+            ng-click="update(project.id)"
+            class="btn">
+            <span class="glyphicon glyphicon-pencil"></span> Edit
+            </button>
+            <button ng-show="editDeleteButton" type="submit"
+            ng-click="delete(project.id)"
+            class="btn btn-danger">
+            <span class="glyphicon glyphicon-remove-circle"></span> Delete
+            </button>
+            <button ng-show="editDeleteButton" type="submit"
+
+            ng-click="runthe(project.id)"
+            class="btn btn-success"
+            ng-disabled="allowRun(project)">
+            <span class="glyphicon glyphicon-ok"></span> Run Project
+            </button>
+        </div>
+    </div>
+</div>

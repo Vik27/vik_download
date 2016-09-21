@@ -1,0 +1,145 @@
+from app import app, db
+import pika
+from app.models import project,hardwareSetup, devicetable, hwchassismap, Module, acquisition, hwchaschanmap, channelsetupe
+global answer
+import json
+
+def pikamsg(message):
+       connection = pika.BlockingConnection(pika.ConnectionParameters(
+       host='localhost'))
+       channel = connection.channel()
+       channel.queue_declare(queue='hello')
+
+       channel.basic_publish(exchange='',
+                     routing_key='hello',
+                     body=json.dumps(message))
+       print(" [x] Sent 'json'")
+       connection.close()
+
+def callback(ch, method, properties, body):
+   print 'received reply'
+   ch.stop_consuming()
+   global answer
+   answer = body
+   print answer
+
+def receive():
+   connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+   channel = connection.channel()
+   channel.queue_declare(queue='hello2')
+   channel.basic_consume(callback, queue='hello2', no_ack=True)
+   print 'started hello2'
+   channel.start_consuming()
+   global answer
+   print 'received answer in receive function'
+   print answer
+   return answer
+
+@app.route("/startdaq")
+def startdaq():
+       pikamsg('1')
+       message=receive()
+       return message
+
+@app.route('/stopdaq')
+def start():
+       pikamsg('2')
+       message=receive()
+       return message
+
+
+def verifyhw(hwsetupId):
+   hwsetup = hardwareSetup.HardwareSetup.query.get(hwsetupId)
+
+   hwchasmps = hwchassismap.Hwchassismap.query.filter\
+       (hwchassismap.Hwchassismap.hwSetupID==hwsetup.id).all()
+
+   device1=devicetable.Devicetable.query.get(hwsetup.deviceId)
+   devices=[]
+   devices.append({'name':device1.firmwarename})
+   devices[0]["Modules"]=[]
+   for hwchasmap in hwchasmps:
+       if hwchasmap.moduleID:
+               mod = Module.Module.query.get(hwchasmap.moduleID)
+
+               devices[0]["Modules"].append({'deviceID':mod.daqmxDeviceId, 
+                   'SlotNumber': hwchasmap.slotnumber, 'hwChasMapID': hwchasmap.id,'type': mod.type  })
+   print devices
+   message={'Task':'verify', 'Device': devices}
+   pikamsg(message)
+   reply=receive()
+   print 'app.route'
+   print reply
+   return (reply, devices, hwsetup.id)
+
+def startProjSet(projectid):
+   proj=project.Project.query.get(projectid)
+   [reply, devices, hwsetupID]=verifyhw(proj.hwsetupId)
+
+   acqstart = acquisition.Acquisition.query.filter((acquisition.Acquisition.hwsetupId == proj.hwsetupId)\
+    & (acquisition.Acquisition.name == 'Start')).first()
+   acqstop = acquisition.Acquisition.query.filter((acquisition.Acquisition.hwsetupId == proj.hwsetupId)\
+    & (acquisition.Acquisition.name == 'Stop')).first()
+   startevent = acqstart.event
+   stopevent = acqstop.event
+   
+   for mod in devices[0]["Modules"]:
+    if mod['type']=='Analog_Input':
+      hwchasmap=hwchassismap.Hwchassismap.query.get(mod['hwChasMapID'])
+      AIsamprate=hwchasmap.samplingrate
+
+      chansCreated = hwchaschanmap.Hwchaschanmap.query.filter\
+        (hwchaschanmap.Hwchaschanmap.hwchassId == mod['hwChasMapID']).all()
+
+      for chan in chansCreated:
+        chansetup = channelsetup.Channelsetup.query.get(chan.channeltemplateID)
+        quan= quantity.Quantity.query.get(unit.Unit.query.get(chansetup.unitId).quantityId)
+
+        if quan.name=='Accelaration':
+          AIchans.append({'name': devices[0]["name"]+'Mod'+str(hwchasmap.slotnumber)+'/AI'+str(chan.channelnumber),
+                          'minRange':-1*chan.peakval , 
+                          'maxRange': chan.peakval, 
+                          'sensitivity': chansetup.sensitivity})
+
+        if quan.name=='Sound':
+          MICchans.append({'name':devices[0]["name"]+'Mod'+str(hwchasmap.slotnumber)+'/AI'+str(chan.channelnumber) , 
+                           'maxRange': chan.peakval , 
+                           'sensitivity':chansetup.sensitivity})
+
+        if quan.name=='RPM':
+          RPMchans.append({'name': devices[0]["name"]+'Mod'+str(hwchasmap.slotnumber)+'/AI'+str(chan.channelnumber),
+                          'minRange':-1*chan.peakval , 
+                          'maxRange': chan.peakval, 
+                          'sensitivity': chansetup.sensitivity})
+
+    if mod.type=='Digital_Input':
+      hwchasmap=hwchassismap.Hwchassismap.query.get(mod['hwChasMapID'])
+      chansCreated = hwchaschanmap.Hwchaschanmap.query.filter\
+        (hwchaschanmap.Hwchaschanmap.hwchassId == mod['hwChasMapID']).all()
+
+      for chan in chansCreated:
+        chansetup = channelsetup.Channelsetup.query.get(chan.channeltemplateID)
+        quan= quantity.Quantity.query.get(unit.Unit.query.get(chansetup.unitId).quantityId)
+
+        if quan.name=='Trigger':  
+          if startevent == 'Digital':
+            start_settings = json.loads(acqstart.eventValue)
+            chanmparow = hwchaschanmap.Hwchaschanmap.query.get(start_settings['digchanmaprowId'])
+            startTrigChanName= devices[0]["name"] + 'Mod' + str(hwchasmap.slotnumber) + '/PFI' +\
+            str(chanmparow.channelnumber)
+
+          if stopevent == 'Time-based':
+            stop_settings = json.loads(acqstop.eventValue)
+            numOfSamps=stop_settings['time']*AIsamprate
+   
+   stratSetting[0]['startTrigChanName']=startTrigChanName
+   stratSetting[0]['AIchans']=AIchans
+   stratSetting[0]['MICchans']=MICchans
+   stratSetting[0]['RPMchans']=RPMchans
+   stratSetting[0]['AIsamprate']=AIsamprate
+   stratSetting[0]['numOfSamps']=numOfSamps
+   taskType='startTask1'
+   message={'Task':taskType, 'settings': settings}
+   pikamsg(message)
+   reply=receive()
+   return reply

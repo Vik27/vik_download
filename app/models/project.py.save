@@ -1,0 +1,41 @@
+from app import db
+
+class Project(db.Model):
+
+    __tablename__ = "project"
+
+    id = db.Column(db.Integer, primary_key = True)
+    
+    name = db.Column(db.String(20))
+    
+    timestamp = db.Column(db.DateTime)
+    
+    description = db.Column(db.String(1000))
+
+    businessId = db.Column(db.Integer,db.ForeignKey('business.id'))
+
+    hwsetupId = db.Column(db.Integer,db.ForeignKey('hardwaresetup.id'))
+
+    created_byId = db.Column(db.Integer,db.ForeignKey('user.id'))
+
+    # project status
+  # status = db.Column(db.Enum('incomplete','complete','running'))
+
+    statusChangeDate = db.Column(db.DateTime)
+
+    
+    def to_dict(self):
+        return dict(
+            name = self.name,
+            created_on = self.timestamp,
+            description = self.description,
+            businessId = self.businessId,
+            hwsetupId = self.hwsetupId,
+            created_byId = self.created_byId,
+            status = self.status,
+            statusChangeDate = self.statusChangeDate,
+            id = self.id
+        )
+
+    def __repr__(self):
+        return '<Project %r>' % (self.id)

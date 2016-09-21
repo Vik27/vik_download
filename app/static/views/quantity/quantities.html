@@ -1,0 +1,90 @@
+<div>
+
+    <script type = "text/ng-template" id="quantity-save.html">
+        <form name="form" role="form" novalidate
+              class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+              ng-submit="ok()">
+
+            <div class="modal-header">
+                <button type="button" class="close"
+                        ng-click="cancel()">&times;</button>
+                <h4 class="modal-title" id="myQuantityLabel">Create or edit a Quantity</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" name="id"
+                           ng-model="quantity.id" readonly>
+                </div>
+
+                
+                <div class="form-group">
+                    <label>name:</label>
+                    
+                    <input type="text" class="form-control" name="name"
+                           ng-model="quantity.name" ng-required="true"
+                           ng-minlength=3 ng-maxlength=20/>
+                    <span class="error" ng-show="form.name.$error.minlength">Must be at least 3 characters.</span>
+                    <span class="error" ng-show="form.name.$error.maxlength">Must be at most 20 characters.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="unitsSelect"> Select Units: </label>
+                        <select class="form-control" name="unitsSelect" ng-model="quantity.units" multiple>
+                            <option ng-repeat="unit in units" ng-value="unit.id" ng-selected="mapps(unit.id)">{{unit.name}}
+                            </option>
+                        </select>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+                </button>
+                <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </script>
+
+    <button class="btn btn-primary btn-default" ng-click="create()">
+        <span class="glyphicon glyphicon-flash"></span> Create a new Quantity
+    </button>
+    <hr/>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                
+                <th>name</th>
+
+                <th>Measuring Units</th>
+                
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="quantity in quantities">
+                <td>{{quantity.id}}</td>
+                
+                <td>{{quantity.name }}</td>
+
+                <td><ul><li ng-repeat="unit in quantity.units">{{unit.name}}</li></ul></td>
+                
+                <td>
+                    <button type="submit"
+                            ng-click="update(quantity.id)"
+                            class="btn">
+                        <span class="glyphicon glyphicon-pencil"></span> Edit
+                    </button>
+                </td>
+                <td>
+                    <button type="submit"
+                            ng-click="delete(quantity.id)"
+                            class="btn btn-danger">
+                        <span class="glyphicon glyphicon-remove-circle"></span> Delete
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

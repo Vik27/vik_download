@@ -1,0 +1,171 @@
+<div>
+
+    <script type = "text/ng-template" id="user-save.html">
+        <form name="form" role="form" novalidate
+              class="ng-scope ng-invalid ng-invalid-required ng-dirty"
+              ng-submit="ok()">
+
+            <div class="modal-header">
+                <button type="button" class="close"
+                        ng-click="cancel()">&times;</button>
+                <h4 class="modal-title" id="myUserLabel">Create or edit a User</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" name="id"
+                           ng-model="user.id" readonly>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="businessSelect"> Business: </label>
+                        <select class="form-control" name="businessSelect" ng-model="user.businessId">
+                            <option ng-repeat="business in businesses" ng-value="business.id" ng-selected="business.id === user.businessId">{{business.name}}
+                            </option>
+                        </select>
+                </div>
+
+                
+                <div class="form-group">
+                    <label>username:</label>
+                    
+                    <input type="text" class="form-control" name="username"
+                           ng-model="user.username" ng-required="true"
+                           ng-minlength=3 ng-maxlength=20/>
+                    <span class="error" ng-show="form.username.$error.minlength">Must be at least 3 characters.</span>
+                    <span class="error" ng-show="form.username.$error.maxlength">Must be at most 20 characters.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>password:</label>
+                    
+                    <input type="text" class="form-control" name="password"
+                           ng-model="user.password" ng-required="true"
+                           ng-minlength=3 ng-maxlength=20/>
+                    <span class="error" ng-show="form.password.$error.minlength">Must be at least 3 characters.</span>
+                    <span class="error" ng-show="form.password.$error.maxlength">Must be at most 20 characters.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>contact_email:</label>
+                    
+                    <input type="text" class="form-control" name="contact_email"
+                           ng-model="user.contact_email" ng-required="true"
+                           ng-minlength=3 ng-maxlength=20/>
+                    <span class="error" ng-show="form.contact_email.$error.minlength">Must be at least 3 characters.</span>
+                    <span class="error" ng-show="form.contact_email.$error.maxlength">Must be at most 20 characters.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>type:</label>
+                    
+                    <label class="radio"><input type="radio" name="type" value="Admin"
+                           ng-model="user.role" ng-required="true"/> Admin </label>
+                    <label class="radio"><input type="radio" name="type" value=" User"
+                           ng-model="user.role" ng-required="true"/>  User </label>
+                    <label class="radio"><input type="radio" name="type" value=" Manager"
+                           ng-model="user.role" ng-required="true"/>  Manager </label>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="cancel()">Cancel
+                </button>
+                <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </script>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title" >
+                <div class="row">
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{activebinessname}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="business in businesses">
+                                    <a href="" ng-click="setActiveBiness(business)">{{business.name}}</a>
+                                </li>
+                                <li><a href="" ng-click="setActiveBiness('all')">All</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class = "col sm-4 col-md-4 col-lg-3">
+                    <button class="btn btn-primary btn-default" ng-click="create()">
+                        <span class="glyphicon glyphicon-flash"></span> Create a new User
+                    </button>
+                </div>
+                <div class = "col-sm-8 col md-8 col-lg-6 alert alert-danger" ng-show="error">
+                    {{errorMessage}}
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+
+                                <th>Business</th>
+                
+                                <th>Username</th>
+                
+                                <th class="psswrd hidden-sm hidden-md hidden-xs">Password</th>
+                
+                                <th>E-mail</th>
+
+                                <th>Role</th>
+
+                                <th></th>
+
+                                <th></th>
+                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="user in users">
+                                <td>{{user.id}}</td>
+
+                                <td>{{(businesses | filter:{id:user.businessId})[0].name}}</td>
+                
+                                <td>{{user.username }}</td>
+                
+                                <td class="psswrd hidden-sm hidden-md hidden-xs">{{user.password }}</td>
+                
+                                <td>{{user.contact_email }}</td>
+
+                                <td>{{user.role}}</td>
+                
+                                <td>
+                                    <button type="submit"
+                                        ng-click="update(user.id)"
+                                        class="btn">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                            Edit
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="submit"
+                                        ng-click="delete(user.id)"
+                                        class="btn btn-danger">
+                                        <span class="glyphicon glyphicon-remove-circle"></span>     Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
